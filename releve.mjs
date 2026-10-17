@@ -10,13 +10,15 @@
  * l'activité au-dessus de l'Islande : OVATION découpée, Kp à la minute,
  * créneau en cours de la prévision Kp, Bz moyen sur 15 minutes.
  *
- * Il vit à deux endroits :
+ * Il vit à trois endroits :
  * - ici, dans le dépôt du site, où il est testé (__tests__/aurora/journal.test.ts) ;
- * - dans le dépôt public Thibaroudeur/journal-aurores, où une GitHub Action le
- *   lance et committe les relevés. Public pour que les minutes d'Actions soient
- *   gratuites : dans le dépôt privé du site, le journal en aurait pris les
- *   trois quarts du quota mensuel. Toute modification ici se recopie là-bas,
- *   mode d'emploi dans scripts/journal-aurores/README.md.
+ * - en copie dans supabase/functions/journal-aurores/, l'Edge Function que
+ *   pg_cron appelle à h07 et h37 et qui range chaque relevé dans la table
+ *   journal_aurores. Le test vérifie que la copie est identique ;
+ * - dans le dépôt public Thibaroudeur/journal-aurores, où une GitHub Action a
+ *   tenu le journal du 16 au 17 octobre 2026, avant que son planning trop
+ *   irrégulier ne soit remplacé par Supabase.
+ * Mode d'emploi : scripts/journal-aurores/README.md.
  *
  * Un relevé = une ligne JSON ajoutée à <dossier>/AAAA-MM-JJ.ndjson (date UTC).
  * Un flux en panne n'empêche pas d'écrire les autres : sa clé vaut null et la
@@ -256,7 +258,10 @@ async function principal() {
   );
 }
 
-if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {
+// Lancé en ligne de commande seulement. Importé par l'Edge Function Supabase
+// (supabase/functions/journal-aurores), où `process` peut ne pas exister.
+const ligneDeCommande = typeof process !== "undefined" ? process.argv?.[1] : undefined;
+if (ligneDeCommande && import.meta.url === pathToFileURL(resolve(ligneDeCommande)).href) {
   principal().catch((erreur) => {
     console.error(erreur);
     process.exit(1);

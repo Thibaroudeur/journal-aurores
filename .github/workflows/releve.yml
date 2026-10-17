@@ -9,10 +9,13 @@
 
 name: Relevé
 
+#
+# DÉSACTIVÉ depuis le 17 octobre 2026 : la première nuit, le planning de GitHub
+# n'a lancé que 4 relevés sur 27. Le journal tourne désormais dans Supabase
+# (pg_cron et l'Edge Function journal-aurores, voir README.md). Ce modèle reste
+# pour l'historique des 8 premiers relevés.
+
 on:
-  # Le vrai rythme vient de cron-job.org, qui lance `workflow_dispatch` par
-  # l'API toutes les 30 minutes (README.md). Le planning de GitHub n'est qu'un
-  # filet de sécurité : la première nuit, il n'a lancé que 4 relevés sur 27.
   schedule:
     # h07 et h37 plutôt que h00 et h30 : GitHub prévient que les tâches
     # planifiées prennent du retard en début d'heure, quand la charge monte.
