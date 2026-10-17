@@ -6,7 +6,7 @@
 > script et le même format. Le workflow « Relevé » est désactivé.
 
 Ce dépôt a relevé l'activité aurorale au-dessus de l'Islande du 16 octobre
-2026, 17 h 51 UTC, au 17 octobre 2026, 7 h 39 UTC : 8 relevés, dans
+2026, 17 h 51 UTC, au 17 octobre 2026, 7 h 39 UTC : 7 relevés, dans
 `donnees/AAAA-MM-JJ.ndjson`, une ligne JSON par relevé. Le but : caler le
 modèle « Prévu » de [/outils/aurores](https://thibaroudeur.com/outils/aurores)
 (Kp prévu posé sur l'ovale de Starkov) sur le modèle « En direct » de la NOAA

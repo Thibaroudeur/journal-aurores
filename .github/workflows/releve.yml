@@ -13,7 +13,7 @@ name: Relevé
 # DÉSACTIVÉ depuis le 17 octobre 2026 : la première nuit, le planning de GitHub
 # n'a lancé que 4 relevés sur 27. Le journal tourne désormais dans Supabase
 # (pg_cron et l'Edge Function journal-aurores, voir README.md). Ce modèle reste
-# pour l'historique des 8 premiers relevés.
+# pour l'historique des 7 premiers relevés.
 
 on:
   schedule:
