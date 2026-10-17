@@ -56,13 +56,62 @@ bouton **Run workflow** fait un relevé immédiat.
 
 Une fois l'analyse faite, le dépôt peut être archivé (Settings, tout en bas,
 **Archive this repository**) : il passe en lecture seule et plus rien ne tourne.
+Penser aussi à couper le déclencheur externe et à supprimer son jeton (section
+suivante).
+
+## Le déclencheur externe : cron-job.org
+
+Le planning de GitHub seul ne suffit pas. La première nuit (16 au 17 octobre
+2026), il n'a lancé que 4 relevés en 13 heures au lieu de 27 : 20 h 53,
+23 h 26, 1 h 28 et 6 h 03 UTC. GitHub ne garantit pas ses tâches planifiées.
+Un lancement par l'API, lui, démarre en quelques secondes. Le service gratuit
+[cron-job.org](https://cron-job.org) appelle donc l'API toutes les 30 minutes.
+Le planning de GitHub reste en place comme filet de sécurité.
+
+À faire une fois, à la main (un compte et un jeton ne se créent que par
+leur propriétaire).
+
+**1. Un jeton GitHub limité à ce dépôt.** Sur GitHub : Settings, Developer
+settings, Personal access tokens, **Fine-grained tokens**, **Generate new
+token**.
+
+| Champ | Valeur |
+|---|---|
+| Token name | `journal-aurores cron` |
+| Expiration | 90 jours (au-delà, le journal retombe sur le seul planning de GitHub) |
+| Repository access | **Only select repositories**, `Thibaroudeur/journal-aurores` |
+| Permissions, Repository permissions | **Actions : Read and write** (rien d'autre) |
+
+Ce jeton ne peut que lancer et lire les workflows de ce dépôt public : ni le
+code, ni le dépôt du site.
+
+**2. La tâche sur cron-job.org.** Créer un compte, puis **Create cronjob** :
+
+| Champ | Valeur |
+|---|---|
+| Title | `Relevé aurores` |
+| URL | `https://api.github.com/repos/Thibaroudeur/journal-aurores/actions/workflows/releve.yml/dispatches` |
+| Execution schedule | Custom : toutes les heures, minutes `7` et `37` |
+| Advanced, Request method | `POST` |
+| Advanced, Headers | `Authorization` : `Bearer <le jeton>` |
+| | `Accept` : `application/vnd.github+json` |
+| | `X-GitHub-Api-Version` : `2022-11-28` |
+| | `Content-Type` : `application/json` |
+| Advanced, Request body | `{"ref":"main"}` |
+
+**Test run** doit répondre 200 ou 204, et un passage `workflow_dispatch`
+apparaît dans `gh run list` dans la minute.
+
+Pour couper le déclencheur : désactiver la tâche sur cron-job.org, puis
+supprimer le jeton sur GitHub. `gh workflow disable` suffit aussi à tout
+arrêter, puisqu'un workflow désactivé refuse les lancements par l'API.
 
 ## Ce qu'il faut savoir
 
-- **Horaires approximatifs.** Le planning demande h07 et h37. GitHub prévient
-  que les tâches planifiées peuvent être retardées quand la charge monte, et
-  parfois sautées. Chaque ligne porte l'heure exacte de son relevé : un
-  retard ne fausse rien, il espace seulement les points.
+- **Relevés en double.** Quand le planning de GitHub se réveille en même temps
+  que cron-job.org, deux relevés tombent à une minute d'écart. Ce n'est pas
+  gênant : chaque ligne porte son heure exacte, et deux lignes qui ont la même
+  `ovation.observation` décrivent la même grille.
 - **Pannes de la NOAA.** Si un flux ne répond pas, la ligne est écrite quand
   même : la clé de ce flux vaut `null` et `pannes` dit pourquoi.
 - **Inactivité.** GitHub désactive les tâches planifiées d'un dépôt public
